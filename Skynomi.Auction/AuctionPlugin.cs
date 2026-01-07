@@ -1,26 +1,28 @@
-using Skynomi.Utils;
-using TShockAPI;
+using Skynomi.Modules;
 using TShockAPI.Hooks;
 
 namespace Skynomi.Auction
 {
-    public class AuctionPlugin : Loader.ISkynomiExtension, Loader.ISkynomiExtensionReloadable, Loader.ISkynomiExtensionDisposable
+    public class AuctionPlugin : IModule, IDependent, IReloadable, IDisposable
     {
         public string Name => "Auction System";
-        public string Description => "Auction system extension for Skynomi";
+        public string Description => "Auction system module for Skynomi";
         public Version Version => new(1, 0, 0);
         public string Author => "folvrix";
-        
-        public static AuctionPlugin Instance { get; private set; }
-        private Config _config;
 
-        public AuctionPlugin()
+        public IReadOnlyList<Type> RequiredModules => new[]
         {
-            Instance = this;
-        }
+            typeof(Utils.UtilsModule),
+            typeof(Database.DatabaseModule),
+            typeof(Economy.EconomyModule)
+        };
+
+        public static AuctionPlugin Instance { get; private set; } = null!;
+        private Config? _config;
 
         public void Initialize()
         {
+            Instance = this;
             _config = Config.Read();
             AuctionManager.Initialize(_config);
             Commands.Initialize(_config);

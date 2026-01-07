@@ -1,12 +1,11 @@
-using Skynomi.Utils;
-using Terraria;
+using Skynomi.Modules;
 using TShockAPI;
 
 namespace Skynomi.Auction
 {
     public class Commands
     {
-        private static Config _config;
+        private static Config _config = null!;
 
         public static void Initialize(Config config)
         {
@@ -21,6 +20,8 @@ namespace Skynomi.Auction
 
         private static void AuctionCmd(CommandArgs args)
         {
+            var utils = ModuleManager.Get<Utils.UtilsModule>();
+
             if (args.Parameters.Count == 0)
             {
                 args.Player.SendInfoMessage("Usage: /auction <create/bid/list/info/cancel/claim/settings/admin>");
@@ -32,7 +33,7 @@ namespace Skynomi.Auction
             {
                 case "create":
                     {
-                        if (!Util.CheckPermission(Permissions.Create, args)) return;
+                        if (!utils.CheckPermission(Permissions.Create, args)) return;
                         if (args.Parameters.Count < 2)
                         {
                             args.Player.SendErrorMessage("Usage: /auction create <price>");
@@ -57,7 +58,7 @@ namespace Skynomi.Auction
                     }
                 case "bid":
                     {
-                        if (!Util.CheckPermission(Permissions.Bid, args)) return;
+                        if (!utils.CheckPermission(Permissions.Bid, args)) return;
                         if (args.Parameters.Count < 2)
                         {
                             args.Player.SendErrorMessage("Usage: /auction bid <amount>");
@@ -84,7 +85,7 @@ namespace Skynomi.Auction
                         args.Player.SendInfoMessage("Active Auctions:");
                         foreach (var a in auctions)
                         {
-                            args.Player.SendInfoMessage($"#{a.Id}: {a.SellerName} selling [i/s{a.Stack}:{a.ItemId}] - Current Bid: {Util.CurrencyFormat(a.CurrentBid)} (Ends in {a.EndTime - DateTimeOffset.UtcNow.ToUnixTimeSeconds()}s)");
+                            args.Player.SendInfoMessage($"#{a.Id}: {a.SellerName} selling [i/s{a.Stack}:{a.ItemId}] - Current Bid: {utils.CurrencyFormat(a.CurrentBid)} (Ends in {a.EndTime - DateTimeOffset.UtcNow.ToUnixTimeSeconds()}s)");
                         }
                         break;
                     }
@@ -109,14 +110,14 @@ namespace Skynomi.Auction
                         args.Player.SendInfoMessage($"Auction #{a.Id}");
                         args.Player.SendInfoMessage($"Item: [i/s{a.Stack}:{a.ItemId}] (Prefix: {a.Prefix})");
                         args.Player.SendInfoMessage($"Seller: {a.SellerName}");
-                        args.Player.SendInfoMessage($"Price: {Util.CurrencyFormat(a.StartingPrice)}");
-                        args.Player.SendInfoMessage($"High Bid: {Util.CurrencyFormat(a.CurrentBid)} by {(a.HighBidderName ?? "None")}");
+                        args.Player.SendInfoMessage($"Price: {utils.CurrencyFormat(a.StartingPrice)}");
+                        args.Player.SendInfoMessage($"High Bid: {utils.CurrencyFormat(a.CurrentBid)} by {(a.HighBidderName ?? "None")}");
                         args.Player.SendInfoMessage($"Time Left: {a.EndTime - DateTimeOffset.UtcNow.ToUnixTimeSeconds()}s");
                         break;
                     }
                 case "cancel":
                     {
-                         if (!Util.CheckPermission(Permissions.Cancel, args)) return;
+                         if (!utils.CheckPermission(Permissions.Cancel, args)) return;
                          if (args.Parameters.Count > 1 && int.TryParse(args.Parameters[1], out int id))
                          {
                              AuctionManager.CancelAuction(args.Player, id);
@@ -134,7 +135,7 @@ namespace Skynomi.Auction
                     }
                 case "settings":
                     {
-                        if (!Util.CheckPermission(Permissions.Settings, args)) return;
+                        if (!utils.CheckPermission(Permissions.Settings, args)) return;
                         if (args.Parameters.Count < 3 || args.Parameters[1] != "broadcast")
                         {
                              args.Player.SendErrorMessage("Usage: /auction settings broadcast <on/off>");
@@ -150,7 +151,7 @@ namespace Skynomi.Auction
                     }
                 case "admin":
                     {
-                        if (!Util.CheckPermission(Permissions.Admin, args)) return;
+                        if (!utils.CheckPermission(Permissions.Admin, args)) return;
                          if (args.Parameters.Count < 2)
                         {
                              args.Player.SendErrorMessage("Usage: /auction admin <cancel/end/list/reload>");

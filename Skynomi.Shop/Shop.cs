@@ -1,75 +1,70 @@
 using System.Timers;
-using Skynomi.Utils;
+using Skynomi.Modules;
 using TShockAPI;
 using TShockAPI.Hooks;
+using Timer = System.Timers.Timer;
 
 namespace Skynomi.Shop
 {
-    public class Shop : Loader.ISkynomiExtension, Loader.ISkynomiExtensionReloadable, Loader.ISkynomiExtensionPostInit
+    public class ShopModule : IModule, IReloadable, IDependent
     {
         public string Name => "Shop System";
-        public string Description => "Shop system extension for Skynomi";
+        public string Description => "Shop system module for Skynomi";
         public Version Version => new(1, 3, 0);
         public string Author => "Keyou";
 
-        private static Config shopConfig;
-        private static System.Timers.Timer broadcastTimer;
+        public IReadOnlyList<Type> RequiredModules => new[]
+        {
+            typeof(Utils.UtilsModule),
+            typeof(Database.DatabaseModule),
+            typeof(Economy.EconomyModule)
+        };
+
+        private static Config _shopConfig = null!;
+        private static Timer? _broadcastTimer;
+
         public void Initialize()
         {
-            shopConfig = Config.Read();
-
+            _shopConfig = Config.Read();
             Commands.Initialize();
+            
+            StartBroadcastTimer();
         }
 
         public void Reload(ReloadEventArgs args)
         {
-            if (shopConfig.AutoBroadcastShop)
-            {
-                broadcastTimer.Stop();
-            }
-
-            shopConfig = Config.Read();
-
+            _broadcastTimer?.Stop();
+            _shopConfig = Config.Read();
             Commands.Reload();
+            
+            StartBroadcastTimer();
 
-            if (shopConfig.ProtectedByRegion && string.IsNullOrEmpty(shopConfig.ShopRegion))
+            if (_shopConfig.ProtectedByRegion && string.IsNullOrEmpty(_shopConfig.ShopRegion))
             {
                 Log.Warn(Messages.EmptyNEnableProtectedRegion);
-            }
-
-            if (shopConfig.AutoBroadcastShop && _List() != "No items available")
-            {
-                broadcastTimer = new System.Timers.Timer(shopConfig.BroadcastIntervalInSeconds * 1000);
-                broadcastTimer.Elapsed += OnBroadcastTimerElapsed;
-                broadcastTimer.AutoReset = true;
-                broadcastTimer.Start();
             }
         }
 
-        public void PostInitialize(EventArgs args)
+        private void StartBroadcastTimer()
         {
-            if (shopConfig.AutoBroadcastShop && _List() != "No items available")
+            if (_shopConfig.AutoBroadcastShop && _List() != "No items available")
             {
-                broadcastTimer = new System.Timers.Timer(shopConfig.BroadcastIntervalInSeconds * 1000);
-                broadcastTimer.Elapsed += OnBroadcastTimerElapsed;
-                broadcastTimer.AutoReset = true;
-                broadcastTimer.Start();
-            }
-
-            if (shopConfig.ProtectedByRegion && string.IsNullOrEmpty(shopConfig.ShopRegion))
-            {
-                Log.Warn(Messages.EmptyNEnableProtectedRegion);
+                _broadcastTimer = new Timer(_shopConfig.BroadcastIntervalInSeconds * 1000);
+                _broadcastTimer.Elapsed += OnBroadcastTimerElapsed;
+                _broadcastTimer.AutoReset = true;
+                _broadcastTimer.Start();
             }
         }
 
         private static string _List()
         {
+            var utils = ModuleManager.Get<Utils.UtilsModule>();
             string message = "Shop Items";
             int i = 0;
-            foreach (var item in shopConfig.ShopItems)
+            foreach (var item in _shopConfig.ShopItems)
             {
                 i++;
-                message += $"\n{i}. [i:{item.Key}] ({item.Key}) - B: {Util.CurrencyFormat(item.Value.buyPrice)} | S: {Util.CurrencyFormat(item.Value.sellPrice)}";
+                message += $"\n{i}. [i:{item.Key}] ({item.Key}) - B: {utils.CurrencyFormat(item.Value.buyPrice)} | S: {utils.CurrencyFormat(item.Value.sellPrice)}";
             }
 
             if (message == "Shop Items")
@@ -80,7 +75,7 @@ namespace Skynomi.Shop
             return message;
         }
 
-        private static void OnBroadcastTimerElapsed(object sender, ElapsedEventArgs e)
+        private static void OnBroadcastTimerElapsed(object? sender, ElapsedEventArgs e)
         {
             TSPlayer.All.SendInfoMessage(_List());
         }

@@ -1,4 +1,4 @@
-using Skynomi.Utils;
+using Skynomi.Modules;
 using Terraria;
 using TerrariaApi.Server;
 using TShockAPI;
@@ -9,16 +9,15 @@ namespace Skynomi.Auction
     {
         private static List<AuctionItem> _activeAuctions = new();
         private static readonly object _lock = new();
-        private static Config _config;
-        private static Database _db;
-        private static Skynomi.Database.Database _economy;
+        private static Config _config = null!;
+        private static Database _db = null!;
         public static Dictionary<string, long> AwaitingDrops = new();
+        private static DateTime _lastUpdate = DateTime.UtcNow;
 
         public static void Initialize(Config config)
         {
             _config = config;
             _db = new Database();
-            _economy = new Skynomi.Database.Database();
             
             _activeAuctions = _db.LoadActiveAuctions();
             
@@ -84,7 +83,9 @@ namespace Skynomi.Auction
                         StartAuction(player.Name, netId, stack, prefix, price);
                         
                         args.Handled = true;
-                        player.SendSuccessMessage($"Auction started for [i/s{stack}:{netId}] at {Util.CurrencyFormat(price)}!");
+                        
+                        var utils = ModuleManager.Get<Utils.UtilsModule>();
+                        player.SendSuccessMessage($"Auction started for [i/s{stack}:{netId}] at {utils.CurrencyFormat(price)}!");
                     }
                 }
             }
@@ -104,7 +105,8 @@ namespace Skynomi.Auction
                 Prefix = prefix,
                 StartingPrice = price,
                 CurrentBid = price,
-                EndTime = endTime
+                EndTime = endTime,
+                IsActive = true
             };
 
             lock (_lock)
@@ -114,7 +116,8 @@ namespace Skynomi.Auction
 
             if (_config.BroadcastAuction)
             {
-                TSPlayer.All.SendInfoMessage($"[Auction] {seller} is auctioning [i/s{stack}:{itemId}] for {Util.CurrencyFormat(price)}! Type /auction bid {price + _config.MinBidIncrement} to bid.");
+                var utils = ModuleManager.Get<Utils.UtilsModule>();
+                TSPlayer.All.SendInfoMessage($"[Auction] {seller} is auctioning [i/s{stack}:{itemId}] for {utils.CurrencyFormat(price)}! Type /auction bid {price + _config.MinBidIncrement} to bid.");
             }
         }
 
@@ -126,6 +129,9 @@ namespace Skynomi.Auction
                 auction = _activeAuctions.OrderByDescending(a => a.Id).FirstOrDefault();
             }
 
+            var utils = ModuleManager.Get<Utils.UtilsModule>();
+            var economy = ModuleManager.Get<Economy.EconomyModule>();
+
             if (auction == null)
             {
                 player.SendErrorMessage("No active auctions.");
@@ -134,7 +140,7 @@ namespace Skynomi.Auction
 
             if (amount < auction.CurrentBid + _config.MinBidIncrement)
             {
-                player.SendErrorMessage($"Bid must be at least {Util.CurrencyFormat(auction.CurrentBid + _config.MinBidIncrement)}.");
+                player.SendErrorMessage($"Bid must be at least {utils.CurrencyFormat(auction.CurrentBid + _config.MinBidIncrement)}.");
                 return;
             }
 
@@ -150,21 +156,21 @@ namespace Skynomi.Auction
                 return;
             }
 
-            long balance = _economy.GetBalance(player.Name);
+            long balance = economy.Db.GetWalletBalance(player.Account.Name) ?? 0;
             if (balance < amount)
             {
-                player.SendErrorMessage($"Not enough currency. You need {Util.CurrencyFormat(amount)}.");
+                player.SendErrorMessage($"Not enough currency. You need {utils.CurrencyFormat(amount)}.");
                 return;
             }
 
             if (auction.HighBidderName != null)
             {
-                _economy.AddBalance(auction.HighBidderName, auction.CurrentBid);
+                economy.Db.UpdateWalletBalance(auction.HighBidderName, w => w.Balance += auction.CurrentBid);
                 var prevPlayer = TShock.Players.FirstOrDefault(p => p != null && p.Name == auction.HighBidderName);
-                prevPlayer?.SendInfoMessage($"You have been outbid! {Util.CurrencyFormat(auction.CurrentBid)} refunded.");
+                prevPlayer?.SendInfoMessage($"You have been outbid! {utils.CurrencyFormat(auction.CurrentBid)} refunded.");
             }
 
-            _economy.RemoveBalance(player.Name, amount);
+            economy.Db.UpdateWalletBalance(player.Account.Name, w => w.Balance -= amount);
 
             long newEndTime = auction.EndTime;
             long now = DateTimeOffset.UtcNow.ToUnixTimeSeconds();
@@ -173,13 +179,13 @@ namespace Skynomi.Auction
                 newEndTime += _config.BidExtensionSeconds;
             }
 
-            auction.HighBidderName = player.Name;
+            auction.HighBidderName = player.Account.Name;
             auction.CurrentBid = amount;
             auction.EndTime = newEndTime;
 
-            _db.UpdateBid(auction.Id, player.Name, amount, newEndTime);
+            _db.UpdateBid(auction.Id, player.Account.Name, amount, newEndTime);
 
-            TSPlayer.All.SendInfoMessage($"[Auction] {player.Name} bid {Util.CurrencyFormat(amount)} on [i/s{auction.Stack}:{auction.ItemId}]!");
+            TSPlayer.All.SendInfoMessage($"[Auction] {player.Name} bid {utils.CurrencyFormat(amount)} on [i/s{auction.Stack}:{auction.ItemId}]!");
         }
 
         public static void CancelAuction(TSPlayer player, int id = -1)
@@ -188,7 +194,7 @@ namespace Skynomi.Auction
             lock (_lock)
             {
                  if (id == -1)
-                    auction = _activeAuctions.FirstOrDefault(a => a.SellerName == player.Name);
+                    auction = _activeAuctions.FirstOrDefault(a => a.SellerName == player.Account.Name);
                  else 
                     auction = _activeAuctions.FirstOrDefault(a => a.Id == id);
             }
@@ -199,17 +205,20 @@ namespace Skynomi.Auction
                 return;
             }
 
-            if (auction.SellerName != player.Name && !player.HasPermission(Permissions.Admin))
+            if (auction.SellerName != player.Account.Name && !player.HasPermission(Permissions.Admin))
             {
                  player.SendErrorMessage("You can only cancel your own auctions.");
                  return;
             }
 
+            var economy = ModuleManager.Get<Economy.EconomyModule>();
+            var utils = ModuleManager.Get<Utils.UtilsModule>();
+
             if (auction.HighBidderName != null)
             {
-                _economy.AddBalance(auction.HighBidderName, auction.CurrentBid);
+                economy.Db.UpdateWalletBalance(auction.HighBidderName, w => w.Balance += auction.CurrentBid);
                 var prevPlayer = TShock.Players.FirstOrDefault(p => p != null && p.Name == auction.HighBidderName);
-                prevPlayer?.SendInfoMessage($"Auction cancelled. {Util.CurrencyFormat(auction.CurrentBid)} refunded.");
+                prevPlayer?.SendInfoMessage($"Auction cancelled. {utils.CurrencyFormat(auction.CurrentBid)} refunded.");
             }
 
             DeliverItem(auction.SellerName, auction.ItemId, auction.Stack, auction.Prefix);
@@ -246,7 +255,6 @@ namespace Skynomi.Auction
                 EndAuction(auction);
             }
         }
-        private static DateTime _lastUpdate = DateTime.UtcNow;
 
         private static void EndAuction(AuctionItem auction)
         {
@@ -256,29 +264,32 @@ namespace Skynomi.Auction
                 _activeAuctions.Remove(auction);
             }
 
+            var economy = ModuleManager.Get<Economy.EconomyModule>();
+            var utils = ModuleManager.Get<Utils.UtilsModule>();
+
             if (auction.HighBidderName != null)
             {
                 DeliverItem(auction.HighBidderName, auction.ItemId, auction.Stack, auction.Prefix);
                 
-                _economy.AddBalance(auction.SellerName, auction.CurrentBid);
+                economy.Db.UpdateWalletBalance(auction.SellerName, w => w.Balance += auction.CurrentBid);
 
-                TSPlayer.All.SendInfoMessage($"[Auction] Auction ended! {auction.HighBidderName} won [i/s{auction.Stack}:{auction.ItemId}] for {Util.CurrencyFormat(auction.CurrentBid)}.");
+                TSPlayer.All.SendInfoMessage($"[Auction] Auction ended! {auction.HighBidderName} won [i/s{auction.Stack}:{auction.ItemId}] for {utils.CurrencyFormat(auction.CurrentBid)}.");
                 
-                var seller = TShock.Players.FirstOrDefault(p => p != null && p.Name == auction.SellerName);
-                seller?.SendSuccessMessage($"Auction sold! You received {Util.CurrencyFormat(auction.CurrentBid)}.");
+                var seller = TShock.Players.FirstOrDefault(p => p != null && p.Account?.Name == auction.SellerName);
+                seller?.SendSuccessMessage($"Auction sold! You received {utils.CurrencyFormat(auction.CurrentBid)}.");
             }
             else
             {
                 DeliverItem(auction.SellerName, auction.ItemId, auction.Stack, auction.Prefix);
                 
-                var seller = TShock.Players.FirstOrDefault(p => p != null && p.Name == auction.SellerName);
+                var seller = TShock.Players.FirstOrDefault(p => p != null && p.Account?.Name == auction.SellerName);
                 seller?.SendErrorMessage("Auction ended with no bids. Item returned.");
             }
         }
 
         public static void DeliverItem(string playerName, int itemId, int stack, int prefix)
         {
-            var player = TShock.Players.FirstOrDefault(p => p != null && p.Name == playerName);
+            var player = TShock.Players.FirstOrDefault(p => p != null && p.Account?.Name == playerName);
             if (player != null && player.Active)
             {
                  bool inventoryFull = true;
@@ -310,7 +321,7 @@ namespace Skynomi.Auction
 
         public static void Claim(TSPlayer player)
         {
-            var items = _db.GetDeliveries(player.Name);
+            var items = _db.GetDeliveries(player.Account.Name);
             if (items.Count == 0)
             {
                 player.SendInfoMessage("No items to claim.");
@@ -346,9 +357,9 @@ namespace Skynomi.Auction
         private static void OnPlayerLogin(GreetPlayerEventArgs args)
         {
             var player = TShock.Players[args.Who];
-            if (player == null) return;
+            if (player == null || player.Account == null) return;
             
-            var deliveries = _db.GetDeliveries(player.Name);
+            var deliveries = _db.GetDeliveries(player.Account.Name);
             if (deliveries.Count > 0)
             {
                 player.SendInfoMessage($"You have {deliveries.Count} items in your delivery queue! Type /auction claim to receive them.");
