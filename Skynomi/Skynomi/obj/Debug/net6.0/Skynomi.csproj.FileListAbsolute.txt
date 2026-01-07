@@ -1,0 +1,13 @@
+D:\User\Downloads\Skynomi-3.2.1\Skynomi\bin\Debug\net6.0\HttpServer.dll
+D:\User\Downloads\Skynomi-3.2.1\Skynomi\bin\Debug\net6.0\Skynomi.deps.json
+D:\User\Downloads\Skynomi-3.2.1\Skynomi\bin\Debug\net6.0\Skynomi.dll
+D:\User\Downloads\Skynomi-3.2.1\Skynomi\bin\Debug\net6.0\Skynomi.pdb
+D:\User\Downloads\Skynomi-3.2.1\Skynomi\obj\Debug\net6.0\Skynomi.csproj.AssemblyReference.cache
+D:\User\Downloads\Skynomi-3.2.1\Skynomi\obj\Debug\net6.0\Skynomi.GeneratedMSBuildEditorConfig.editorconfig
+D:\User\Downloads\Skynomi-3.2.1\Skynomi\obj\Debug\net6.0\Skynomi.AssemblyInfoInputs.cache
+D:\User\Downloads\Skynomi-3.2.1\Skynomi\obj\Debug\net6.0\Skynomi.AssemblyInfo.cs
+D:\User\Downloads\Skynomi-3.2.1\Skynomi\obj\Debug\net6.0\Skynomi.csproj.CoreCompileInputs.cache
+D:\User\Downloads\Skynomi-3.2.1\Skynomi\obj\Debug\net6.0\Skynomi.dll
+D:\User\Downloads\Skynomi-3.2.1\Skynomi\obj\Debug\net6.0\refint\Skynomi.dll
+D:\User\Downloads\Skynomi-3.2.1\Skynomi\obj\Debug\net6.0\Skynomi.pdb
+D:\User\Downloads\Skynomi-3.2.1\Skynomi\obj\Debug\net6.0\ref\Skynomi.dll
