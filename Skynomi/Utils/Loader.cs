@@ -34,9 +34,6 @@ namespace Skynomi.Utils
 
         private static List<ISkynomiExtension> _loadedExtensions = new List<ISkynomiExtension>();
 
-        /// <summary>
-        /// Load all Skynomi.xxx.dll extensions
-        /// </summary>
         public static void Initialize()
         {
             Dispose();
@@ -112,7 +109,6 @@ namespace Skynomi.Utils
                 }
 
                 bool isReloadable = extension is ISkynomiExtensionReloadable;
-                // ReSharper disable once SuspiciousTypeConversion.Global
                 bool isDisposable = extension is ISkynomiExtensionDisposable;
                 bool isPostInit = extension is ISkynomiExtensionPostInit;
 
@@ -130,9 +126,6 @@ namespace Skynomi.Utils
             }
         }
 
-        /// <summary>
-        /// Reload all loaded extensions
-        /// </summary>
         public static void Reload(ReloadEventArgs args)
         {
             string text = "Reloaded extensions:";
@@ -188,9 +181,6 @@ namespace Skynomi.Utils
             }
         }
 
-        /// <summary>
-        /// Dispose all loaded extensions
-        /// </summary>
         public static void Dispose()
         {
             string text = "Disposed extensions:";
@@ -199,7 +189,6 @@ namespace Skynomi.Utils
             {
                 try
                 {
-                    // ReSharper disable once SuspiciousTypeConversion.Global
                     if (extension is ISkynomiExtensionDisposable disposable)
                     {
                         disposable.Dispose();

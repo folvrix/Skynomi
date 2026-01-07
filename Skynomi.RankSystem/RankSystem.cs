@@ -62,7 +62,6 @@ namespace Skynomi.RankSystem
 
             if (match.Success)
             {
-                // Set to max rank in the configuration
                 if (plrRank.Rank - 1 > ranks.Count)
                 {
                     TShock.UserAccounts.SetUserGroup(player.Account, "rank_" + ranks.Count);
@@ -144,7 +143,6 @@ namespace Skynomi.RankSystem
                 string parentPermissions = parentGroup != null ? parentGroup.Permissions : "";
                 string permission = parent == "" ? key.Value.Permission.Replace(" ", ",") : parentPermissions + "," + key.Value.Permission.Replace(" ", ",");
 
-                // Create the group
                 if (status == 1)
                 {
                     if (TShock.Groups.GroupExists(name))
@@ -211,7 +209,6 @@ namespace Skynomi.RankSystem
                             }
                         }
 
-                        // Dye ban checks
                         foreach (Item item in player.TPlayer.dye)
                         {
                             if (rank.RestrictedItems.Contains(item.type))
@@ -225,7 +222,6 @@ namespace Skynomi.RankSystem
                             }
                         }
 
-                        // Misc equip ban checks
                         foreach (Item item in player.TPlayer.miscEquips)
                         {
                             if (rank.RestrictedItems.Contains(item.type))
@@ -238,7 +234,6 @@ namespace Skynomi.RankSystem
                             }
                         }
 
-                        // Misc dye ban checks
                         foreach (Item item in player.TPlayer.miscDyes)
                         {
                             if (rank.RestrictedItems.Contains(item.type))

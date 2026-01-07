@@ -1,4 +1,4 @@
-﻿namespace Skynomi.Utils
+namespace Skynomi.Utils
 {
     public static class Permissions
     {

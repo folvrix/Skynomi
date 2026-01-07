@@ -1,4 +1,4 @@
-﻿using System.Text;
+using System.Text;
 using Microsoft.Xna.Framework;
 using Skynomi.Database;
 using TShockAPI;
@@ -45,7 +45,6 @@ namespace Skynomi
             _config = Config.Read();
         }
 
-        // Commands
         private static void Pay(CommandArgs args)
         {
             #region Pay
@@ -54,7 +53,6 @@ namespace Skynomi
 
             string usage = "Usage: /pay <player> <amount>";
 
-            // send usage message when only using /pay
             if (args.Parameters.Count == 0)
             {
                 args.Player.SendErrorMessage(usage);
@@ -84,7 +82,6 @@ namespace Skynomi
 
             long balancePlayer = Database.GetBalance(args.Player.Name);
 
-            // Check if the player has enough balance to pay
             if (!long.TryParse(args.Parameters[1], out long amount))
             {
                 args.Player.SendErrorMessage("Invalid amount.");
@@ -155,7 +152,6 @@ namespace Skynomi
             }
         }
 
-        // Admin commands
         private static void Admin(CommandArgs args)
         {
             string usage = $"setbal: Set player's {_config.Currency} to a specific amount. Use - to reduce user currency";

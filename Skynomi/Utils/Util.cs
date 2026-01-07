@@ -1,4 +1,4 @@
-﻿using TShockAPI;
+using TShockAPI;
 using Terraria;
 
 namespace Skynomi.Utils
@@ -95,7 +95,6 @@ namespace Skynomi.Utils
             }
             catch
             {
-                // ignored
             }
 
             return orig(instance, ref packetId, ref readOffset, ref start, ref length, ref messageType, maxPackets);

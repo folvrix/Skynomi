@@ -1,4 +1,4 @@
-﻿using TerrariaApi.Server;
+using TerrariaApi.Server;
 using TShockAPI;
 using Terraria;
 using Microsoft.Xna.Framework;
@@ -49,7 +49,6 @@ namespace Skynomi
             Commands.Initialize();
             Utils.Util.Initialize();
 
-            // Extension
             Utils.Loader.Initialize();
         }
 
@@ -57,7 +56,6 @@ namespace Skynomi
         {
             if (disposing)
             {
-                // Extension
                 Utils.Loader.Dispose();
 
                 ServerApi.Hooks.NpcKilled.Deregister(this, OnNpcKilled);
@@ -87,7 +85,6 @@ namespace Skynomi
             Commands.Reload();
             Utils.Util.Reload();
 
-            // Extension
             Utils.Loader.Reload(args);
 
             args.Player.SendSuccessMessage(Utils.Messages.Reload);
@@ -97,7 +94,6 @@ namespace Skynomi
         {
             Database.Database.PostInitialize();
 
-            // Extension
             Utils.Loader.PostInitialize(args);
         }
 
@@ -112,7 +108,6 @@ namespace Skynomi
             TSPlayer player = TShock.Players[args.Player.whoAmI];
             if (player == null) return;
 
-            // Blacklist check
             if (Config.BlacklistNpc.Contains(args.Npc.netID))
                 return;
 
@@ -143,7 +138,6 @@ namespace Skynomi
                 if (args.npc.lastInteraction < 0 || args.npc.lastInteraction >= TShock.Players.Length)
                     return;
 
-                // Blacklist check
                 if (Config.BlacklistNpc.Contains(args.npc.netID))
                     return;
 
@@ -188,7 +182,7 @@ namespace Skynomi
 
                 foreach (var (playerName, playerDamage) in interaction.DamageByPlayers)
                 {
-                    double damagePercentage = (double)playerDamage / totalDamage; // Percentage of total damage
+                    double damagePercentage = (double)playerDamage / totalDamage;
                     long playerReward = (long)(baseReward * damagePercentage);
 
                     double chance = random.NextDouble() * 100;
@@ -199,7 +193,7 @@ namespace Skynomi
 
                     if (playerName == killer.Name)
                     {
-                        playerReward += (int)(baseReward * 0.1); // Bonus 10%
+                        playerReward += (int)(baseReward * 0.1);
                     }
 
                     var player = TShock.Players.FirstOrDefault(p => p?.Name == playerName);

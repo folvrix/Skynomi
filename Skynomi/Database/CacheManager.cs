@@ -136,9 +136,9 @@ namespace Skynomi.Database
             {
                 var cacheDict = GetOrCreateCache();
 
-#pragma warning disable CS8601 // Possible null reference assignment.
+#pragma warning disable CS8601
                 cacheDict[subKey] = value;
-#pragma warning restore CS8601 // Possible null reference assignment.
+#pragma warning restore CS8601
 
                 bool isNewEntry = !cacheDict.ContainsKey(subKey);
 
@@ -255,7 +255,6 @@ namespace Skynomi.Database
 
                     var result = db.CustomVoid(query, output: true);
 
-                    // Reset the cache
                     GetOrCreateCache().Clear();
 
                     foreach (var row in result)
@@ -271,9 +270,9 @@ namespace Skynomi.Database
                             ? entry.Value
                             : JsonConvert.DeserializeObject(JsonConvert.SerializeObject(entry.Value), entry.Value.GetType())));
 
-#pragma warning disable CS8620 // Argument cannot be used for parameter due to differences in the nullability of reference types.
+#pragma warning disable CS8620
                     _lastCache[_key] = new ConcurrentDictionary<string, object>(deepCopy);
-#pragma warning restore CS8620 // Argument cannot be used for parameter due to differences in the nullability of reference types.
+#pragma warning restore CS8620
 
                     return true;
                 }
@@ -333,7 +332,6 @@ namespace Skynomi.Database
                         ? con as Microsoft.Data.Sqlite.SqliteConnection
                         : con as MySql.Data.MySqlClient.MySqlConnection;
 
-                    // Reopen connection
                     database?.Close();
                     database?.Open();
 
@@ -388,13 +386,6 @@ namespace Skynomi.Database
                                         }
                                     }
 
-                                    // #region Debug
-                                    // Console.WriteLine($"Executing Query: {cmd.CommandText}");
-                                    // foreach (System.Data.Common.DbParameter param in cmd.Parameters)
-                                    // {
-                                    //     Console.WriteLine($"{param.ParameterName}: {param.Value}");
-                                    // }
-                                    // #endregion
 
                                     cmd.ExecuteNonQuery();
 

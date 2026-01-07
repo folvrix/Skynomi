@@ -49,7 +49,6 @@ namespace Skynomi.Database
                 _databaseType = "sqlite";
             }
 
-            // Start AutoSave
             CacheManager.StopAutoSave();
             CacheManager.AutoSave(_config.autoSaveInterval);
             Utils.Log.Info("AutoSave enabled.");
@@ -204,9 +203,9 @@ namespace Skynomi.Database
 
                     for (int i = 0; i < reader.FieldCount; i++)
                     {
-#pragma warning disable CS8601 // Possible null reference assignment.
+#pragma warning disable CS8601
                         row[reader.GetName(i)] = reader.IsDBNull(i) ? null : reader.GetValue(i);
-#pragma warning restore CS8601 // Possible null reference assignment.
+#pragma warning restore CS8601
                     }
 
                     resultList.Add(row);

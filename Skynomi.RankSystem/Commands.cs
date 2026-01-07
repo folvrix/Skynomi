@@ -15,7 +15,6 @@ namespace Skynomi.RankSystem
             rankConfig = Config.Read();
             Skynomi.Config.Read();
 
-            // Init Commands
             TShockAPI.Commands.ChatCommands.Add(new Command(Permissions.Rank, Rank, "rank", "level")
             {
                 AllowServer = true,
@@ -53,7 +52,6 @@ namespace Skynomi.RankSystem
                     return;
                 }
 
-                // Check if the player is from rank group
                 if ((args.Parameters[0] == "up" || args.Parameters[0] == "down") && !args.Player.Group.Name.StartsWith("rank_") && args.Player.Group.Name != TShock.Config.Settings.DefaultRegistrationGroupName)
                 {
                     args.Player.SendErrorMessage("You are not in a rank group.");
@@ -64,7 +62,6 @@ namespace Skynomi.RankSystem
                 {
                     if (!Utils.Util.CheckPermission(Permissions.RankUp, args)) return;
 
-                    // rank index start at 1
                     var player = args.Player;
                     var regex = new Regex(@"rank_(\d+)");
                     var match = regex.Match(player!.Group.Name);
@@ -73,13 +70,11 @@ namespace Skynomi.RankSystem
 
                     Skynomi.Database.CacheManager.CacheEntry<Database.TRank> rankCache = Skynomi.Database.CacheManager.Cache.GetCache<Database.TRank>("Ranks");
 
-                    // nextindex start at 0
                     int nextIndex = rank;
                     if (nextIndex < rankConfig.Ranks.Count)
                     {
                         string nextRank = GetRankByIndex(nextIndex);
 
-                        // Check user balance
                         long balance = database.GetBalance(args.Player.Name);
                         long rankCost = rankConfig.Ranks[nextRank].Cost;
 
@@ -89,7 +84,6 @@ namespace Skynomi.RankSystem
                             return;
                         }
 
-                        // Give Player Rewards
                         int highestRank = rankCache.GetValue(args.Player.Name).HighestRank;
 
                         if ((rank + 1) > highestRank)
@@ -100,7 +94,6 @@ namespace Skynomi.RankSystem
                             }
                         }
 
-                        // Set the Highest Level
                         rankCache.Modify(args.Player.Name, e =>
                         {
                             e.Rank = rank + 1;
@@ -135,14 +128,12 @@ namespace Skynomi.RankSystem
                         return;
                     }
 
-                    // start at 1
                     var player = args.Player;
                     var regex = new Regex(@"rank_(\d+)");
                     var match = regex.Match(player!.Group.Name);
 
                     int rank = match.Success ? int.Parse(match.Groups[1].Value) : 0;
 
-                    // start at 0
                     int nextIndex = (rank - 2);
                     if (nextIndex >= 0)
                     {
