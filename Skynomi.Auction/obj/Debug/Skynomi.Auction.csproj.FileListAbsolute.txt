@@ -1,0 +1,14 @@
+D:\User\Downloads\Skynomi-3.2.1\Skynomi.Auction\obj\Debug\Skynomi.Auction.csproj.AssemblyReference.cache
+D:\User\Downloads\Skynomi-3.2.1\Skynomi.Auction\obj\Debug\Skynomi.Auction.GeneratedMSBuildEditorConfig.editorconfig
+D:\User\Downloads\Skynomi-3.2.1\Skynomi.Auction\obj\Debug\Skynomi.Auction.AssemblyInfoInputs.cache
+D:\User\Downloads\Skynomi-3.2.1\Skynomi.Auction\obj\Debug\Skynomi.Auction.AssemblyInfo.cs
+D:\User\Downloads\Skynomi-3.2.1\Skynomi.Auction\obj\Debug\Skynomi.Auction.csproj.CoreCompileInputs.cache
+D:\User\Downloads\Skynomi-3.2.1\build\HttpServer.dll
+D:\User\Downloads\Skynomi-3.2.1\build\Skynomi.Auction.deps.json
+D:\User\Downloads\Skynomi-3.2.1\build\Skynomi.Auction.dll
+D:\User\Downloads\Skynomi-3.2.1\build\Skynomi.Auction.pdb
+D:\User\Downloads\Skynomi-3.2.1\Skynomi.Auction\obj\Debug\Skynomi..6C2E6437.Up2Date
+D:\User\Downloads\Skynomi-3.2.1\Skynomi.Auction\obj\Debug\Skynomi.Auction.dll
+D:\User\Downloads\Skynomi-3.2.1\Skynomi.Auction\obj\Debug\refint\Skynomi.Auction.dll
+D:\User\Downloads\Skynomi-3.2.1\Skynomi.Auction\obj\Debug\Skynomi.Auction.pdb
+D:\User\Downloads\Skynomi-3.2.1\Skynomi.Auction\obj\Debug\ref\Skynomi.Auction.dll

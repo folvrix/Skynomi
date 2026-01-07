@@ -1,7 +1,7 @@
-﻿using Newtonsoft.Json;
+using Newtonsoft.Json;
 using TShockAPI;
 
-namespace Skynomi.ShopSystem
+namespace Skynomi.Shop
 {
     public class Config
     {

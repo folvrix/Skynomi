@@ -1,0 +1,16 @@
+D:\User\Downloads\Skynomi-3.2.1\Skynomi.Shop\bin\Debug\net6.0\HttpServer.dll
+D:\User\Downloads\Skynomi-3.2.1\Skynomi.Shop\bin\Debug\net6.0\Skynomi.Shop.deps.json
+D:\User\Downloads\Skynomi-3.2.1\Skynomi.Shop\bin\Debug\net6.0\Skynomi.Shop.dll
+D:\User\Downloads\Skynomi-3.2.1\Skynomi.Shop\bin\Debug\net6.0\Skynomi.Shop.pdb
+D:\User\Downloads\Skynomi-3.2.1\Skynomi.Shop\bin\Debug\net6.0\Skynomi.dll
+D:\User\Downloads\Skynomi-3.2.1\Skynomi.Shop\bin\Debug\net6.0\Skynomi.pdb
+D:\User\Downloads\Skynomi-3.2.1\Skynomi.Shop\obj\Debug\net6.0\Skynomi.Shop.csproj.AssemblyReference.cache
+D:\User\Downloads\Skynomi-3.2.1\Skynomi.Shop\obj\Debug\net6.0\Skynomi.Shop.GeneratedMSBuildEditorConfig.editorconfig
+D:\User\Downloads\Skynomi-3.2.1\Skynomi.Shop\obj\Debug\net6.0\Skynomi.Shop.AssemblyInfoInputs.cache
+D:\User\Downloads\Skynomi-3.2.1\Skynomi.Shop\obj\Debug\net6.0\Skynomi.Shop.AssemblyInfo.cs
+D:\User\Downloads\Skynomi-3.2.1\Skynomi.Shop\obj\Debug\net6.0\Skynomi.Shop.csproj.CoreCompileInputs.cache
+D:\User\Downloads\Skynomi-3.2.1\Skynomi.Shop\obj\Debug\net6.0\Skynomi..60D23C1D.Up2Date
+D:\User\Downloads\Skynomi-3.2.1\Skynomi.Shop\obj\Debug\net6.0\Skynomi.Shop.dll
+D:\User\Downloads\Skynomi-3.2.1\Skynomi.Shop\obj\Debug\net6.0\refint\Skynomi.Shop.dll
+D:\User\Downloads\Skynomi-3.2.1\Skynomi.Shop\obj\Debug\net6.0\Skynomi.Shop.pdb
+D:\User\Downloads\Skynomi-3.2.1\Skynomi.Shop\obj\Debug\net6.0\ref\Skynomi.Shop.dll

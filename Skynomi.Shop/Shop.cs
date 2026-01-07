@@ -3,7 +3,7 @@ using Skynomi.Utils;
 using TShockAPI;
 using TShockAPI.Hooks;
 
-namespace Skynomi.ShopSystem
+namespace Skynomi.Shop
 {
     public class Shop : Loader.ISkynomiExtension, Loader.ISkynomiExtensionReloadable, Loader.ISkynomiExtensionPostInit
     {
@@ -16,7 +16,6 @@ namespace Skynomi.ShopSystem
         private static System.Timers.Timer broadcastTimer;
         public void Initialize()
         {
-            Skynomi.Config.Read();
             shopConfig = Config.Read();
 
             Commands.Initialize();
@@ -29,7 +28,6 @@ namespace Skynomi.ShopSystem
                 broadcastTimer.Stop();
             }
 
-            Skynomi.Config.Read();
             shopConfig = Config.Read();
 
             Commands.Reload();
@@ -41,7 +39,6 @@ namespace Skynomi.ShopSystem
 
             if (shopConfig.AutoBroadcastShop && _List() != "No items available")
             {
-                Log.Warn(Messages.AutoShopDisabled);
                 broadcastTimer = new System.Timers.Timer(shopConfig.BroadcastIntervalInSeconds * 1000);
                 broadcastTimer.Elapsed += OnBroadcastTimerElapsed;
                 broadcastTimer.AutoReset = true;
@@ -51,10 +48,8 @@ namespace Skynomi.ShopSystem
 
         public void PostInitialize(EventArgs args)
         {
-            // broadcast
             if (shopConfig.AutoBroadcastShop && _List() != "No items available")
             {
-                Log.Warn(Messages.AutoShopDisabled);
                 broadcastTimer = new System.Timers.Timer(shopConfig.BroadcastIntervalInSeconds * 1000);
                 broadcastTimer.Elapsed += OnBroadcastTimerElapsed;
                 broadcastTimer.AutoReset = true;
@@ -69,7 +64,6 @@ namespace Skynomi.ShopSystem
 
         private static string _List()
         {
-            // shop list
             string message = "Shop Items";
             int i = 0;
             foreach (var item in shopConfig.ShopItems)
@@ -86,7 +80,6 @@ namespace Skynomi.ShopSystem
             return message;
         }
 
-        // Broadcast
         private static void OnBroadcastTimerElapsed(object sender, ElapsedEventArgs e)
         {
             TSPlayer.All.SendInfoMessage(_List());

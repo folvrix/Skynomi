@@ -1,4 +1,4 @@
-namespace Skynomi.ShopSystem
+namespace Skynomi.Shop
 {
     public abstract class Permissions
     {

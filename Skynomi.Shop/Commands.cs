@@ -1,17 +1,15 @@
-﻿using Terraria;
+using Terraria;
 using TShockAPI;
 
-namespace Skynomi.ShopSystem
+namespace Skynomi.Shop
 {
     public static class Commands
     {
-        private static Skynomi.Config config;
         private static Config shopConfig;
         private static readonly Skynomi.Database.Database database = new();
 
         public static void Initialize()
         {
-            config = Skynomi.Config.Read();
             shopConfig = Config.Read();
 
             TShockAPI.Commands.ChatCommands.Add(new Command(Permissions.Shop, Shop, "shop")
@@ -23,7 +21,6 @@ namespace Skynomi.ShopSystem
 
         public static void Reload()
         {
-            config = Skynomi.Config.Read();
             shopConfig = Config.Read();
         }
 
@@ -36,7 +33,6 @@ namespace Skynomi.ShopSystem
                 return;
             }
 
-            // Check if the player is in the allowed region
             if (shopConfig.ProtectedByRegion)
             {
                 var region = TShock.Regions.GetRegionByName(shopConfig.ShopRegion);
@@ -50,7 +46,7 @@ namespace Skynomi.ShopSystem
             #region Buy
             if (args.Parameters[0] == "buy")
             {
-                if (!Utils.Util.CheckPermission(Permissions.Buy, args)) return;
+                if (!Skynomi.Utils.Util.CheckPermission(Permissions.Buy, args)) return;
 
                 try
                 {
@@ -83,7 +79,6 @@ namespace Skynomi.ShopSystem
                         return;
                     }
 
-                    // Check Item
                     bool isThereAny = false;
                     string itemKey = "1";
                     int itemValue = 0;
@@ -97,14 +92,12 @@ namespace Skynomi.ShopSystem
                         break;
                     }
 
-                    // check item
                     if (!isThereAny)
                     {
                         args.Player.SendErrorMessage("Item not found in shop");
                         return;
                     }
 
-                    // check balance
                     long balance = database.GetBalance(args.Player.Name);
                     int itemId = int.Parse(itemKey);
 
@@ -120,7 +113,7 @@ namespace Skynomi.ShopSystem
                     long totalPrice = itemValue * itemAmount;
                     if (balance < totalPrice)
                     {
-                        args.Player.SendErrorMessage($"You do not have enough {config.Currency} to buy this item. (Need {Utils.Util.CurrencyFormat(totalPrice - balance)} more)");
+                        args.Player.SendErrorMessage($"You do not have enough {SkynomiPlugin.Config.Currency} to buy this item. (Need {Skynomi.Utils.Util.CurrencyFormat(totalPrice - balance)} more)");
                         return;
                     }
 
@@ -128,14 +121,14 @@ namespace Skynomi.ShopSystem
                     if (!itemCanUseThePrefix)
                         itemPrefix = 0;
 
-                    args.Player.SendInfoMessage($"You have bought [i/s{itemAmount},p{itemPrefix}:{args.Parameters[1]}] for {Utils.Util.CurrencyFormat(totalPrice)}");
+                    args.Player.SendInfoMessage($"You have bought [i/s{itemAmount},p{itemPrefix}:{args.Parameters[1]}] for {Skynomi.Utils.Util.CurrencyFormat(totalPrice)}");
                     args.Player.GiveItem(itemId, itemAmount, itemPrefix);
                     database.RemoveBalance(args.Player.Name, totalPrice);
 
                 }
                 catch (Exception ex)
                 {
-                    Utils.Log.Error(ex.ToString());
+                    Skynomi.Utils.Log.Error(ex.ToString());
                 }
             }
             #endregion
@@ -143,7 +136,7 @@ namespace Skynomi.ShopSystem
             #region Sell
             else if (args.Parameters[0] == "sell")
             {
-                if (!Utils.Util.CheckPermission(Permissions.Sell, args)) return;
+                if (!Skynomi.Utils.Util.CheckPermission(Permissions.Sell, args)) return;
 
                 string usage = "Usage: /shop sell <item> [amount]";
 
@@ -175,7 +168,6 @@ namespace Skynomi.ShopSystem
                     return;
                 }
 
-                // Check Item
                 bool isThereAny = false;
                 int itemValue = 0;
                 foreach (var i in shopConfig.ShopItems)
@@ -188,7 +180,6 @@ namespace Skynomi.ShopSystem
                     }
                 }
 
-                // check item
                 if (!isThereAny)
                 {
                     args.Player.SendErrorMessage("Item not sellable");
@@ -238,7 +229,7 @@ namespace Skynomi.ShopSystem
                 }
 
                 long totalPrice = itemValue * amount;
-                args.Player.SendInfoMessage($"You have sell [i/s{amount}:{item.netID}] for {Utils.Util.CurrencyFormat((int)totalPrice)}");
+                args.Player.SendInfoMessage($"You have sell [i/s{amount}:{item.netID}] for {Skynomi.Utils.Util.CurrencyFormat((int)totalPrice)}");
                 database.AddBalance(args.Player.Name, (int)totalPrice);
             }
             #endregion
@@ -246,7 +237,7 @@ namespace Skynomi.ShopSystem
             #region List
             else if (args.Parameters[0] == "list")
             {
-                if (!Utils.Util.CheckPermission(Permissions.List, args)) return;
+                if (!Skynomi.Utils.Util.CheckPermission(Permissions.List, args)) return;
 
                 int pageSize = shopConfig.ListLength;
                 int currentPage = 1;
@@ -283,7 +274,7 @@ namespace Skynomi.ShopSystem
                         }
                     }
 
-                    message += $"\n{index}. [i/p{prefix}:{item.Key}] {TShock.Utils.GetItemById(itemId).Name} ({item.Key}) {(!string.IsNullOrWhiteSpace(prefixName) ? "[" + prefixName + "] " : "")}- B: {Utils.Util.CurrencyFormat(item.Value.buyPrice)} | S: {Utils.Util.CurrencyFormat(item.Value.sellPrice)}";
+                    message += $"\n{index}. [i/p{prefix}:{item.Key}] {TShock.Utils.GetItemById(itemId).Name} ({item.Key}) {(!string.IsNullOrWhiteSpace(prefixName) ? "[" + prefixName + "] " : "")}- B: {Skynomi.Utils.Util.CurrencyFormat(item.Value.buyPrice)} | S: {Skynomi.Utils.Util.CurrencyFormat(item.Value.sellPrice)}";
                     index++;
                 }
 
